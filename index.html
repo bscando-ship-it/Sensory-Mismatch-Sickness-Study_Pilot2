@@ -114,14 +114,25 @@
         </div>
 
         <div id="stepRating" class="hidden" style="text-align: center;">
-            <h3 style="display:block; text-align:center; border:none;">현재 느끼는 멀미/어지러움 점수를 선택해 주세요</h3>
+            <h3 style="display:block; text-align:center; border:none;">현재 느끼는 멀미 점수를 선택해 주세요</h3>
             <p id="ratingTimerText" style="color: #d93025; font-weight: bold; font-size: 1.2rem;">남은 시간: 5초</p>
     
-            <div style="display: flex; justify-content: space-between; max-width: 600px; margin: 0 auto 10px auto; font-size: 0.9rem; font-weight: bold;">
-                <span style="color: #385723;">🟢 0: 정상</span>
-                <span style="color: #b25900;">🟡 2~5: 전조증상<br>(두통,식은땀 / 속은 괜찮음)</span>
-                <span style="color: #c65911;">🟠 6~8: 메스꺼움<br>(속이 울렁거림)</span>
-                <span style="color: #9c0006;">🔴 10: 구토직전</span>
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 650px; margin: 0 auto 15px auto; text-align: center;">
+                <div style="color: #2e7d32; padding: 8px 12px; background: #e8f5e9; border-radius: 8px; border: 1px solid #c8e6c9;">
+                    <strong>🟢 0: 정상</strong><br><span style="font-size: 0.85rem;">(아무 증상 없음)</span>
+                </div>
+                <div style="color: #827717; padding: 8px 12px; background: #f9fbe7; border-radius: 8px; border: 1px solid #f0f4c3;">
+                    <strong>🟡 1: 미세한 불편감</strong><br><span style="font-size: 0.85rem;">(불쾌감)</span>
+                </div>
+                <div style="color: #e65100; padding: 8px 12px; background: #fff3e0; border-radius: 8px; border: 1px solid #ffe0b2;">
+                    <strong>🟠 2~5: 전조 증상</strong><br><span style="font-size: 0.85rem;">(두통·어지럼증·하품)</span>
+                </div>
+                <div style="color: #c62828; padding: 8px 12px; background: #ffebee; border-radius: 8px; border: 1px solid #ffcdd2;">
+                    <strong>🔴 6~8: 메스꺼움</strong><br><span style="font-size: 0.85rem;">(속이 울렁거림)</span>
+                </div>
+                <div style="color: #4e342e; padding: 8px 12px; background: #efebe9; border-radius: 8px; border: 1px solid #d7ccc8;">
+                    <strong>🟤 9~10: 구토 직전</strong><br><span style="font-size: 0.85rem;">(참기 힘듦)</span>
+                </div>
             </div>
 
             <div class="rating-grid" id="ratingScale" style="max-width: 600px; margin: 0 auto;"></div>
@@ -462,11 +473,11 @@
             b.innerText = i; 
             
             // 1. 점수 구역별로 직관적인 배경색 미리 깔아주기
-            if(i === 0) b.style.background = "#e2f0d9"; // 연녹 (정상)
-            else if(i >= 2 && i <= 5) b.style.background = "#fff2cc"; // 연황 (전조증상)
-            else if(i >= 6 && i <= 8) b.style.background = "#fce4d6"; // 연주황 (메스꺼움)
-            else if(i >= 9) b.style.background = "#ffc7ce"; // 연적 (구토 직전)
-            else b.style.background = "white"; // 1점은 애매한 단계라 흰색 유지
+            if(i === 0) b.style.background = "#e8f5e9"; // 0점 (연녹)
+            else if(i === 1) b.style.background = "#f9fbe7"; // 1점 (연노랑)
+            else if(i >= 2 && i <= 5) b.style.background = "#fff3e0"; // 2~5점 (연주황)
+            else if(i >= 6 && i <= 8) b.style.background = "#ffebee"; // 6~8점 (연적색)
+            else if(i >= 9) b.style.background = "#efebe9"; // 9~10점 (연갈색/회색)
             
             // 2. 버튼 클릭 시 이벤트
             b.onclick = () => {
@@ -475,11 +486,11 @@
                 // 다른 버튼들을 원래의 구역 색상으로 원상복구
                 Array.from(scale.children).forEach((btn, index) => { 
                     btn.style.color = '#333';
-                    if(index === 0) btn.style.background = "#e2f0d9";
-                    else if(index >= 2 && index <= 5) btn.style.background = "#fff2cc";
-                    else if(index >= 6 && index <= 8) btn.style.background = "#fce4d6";
-                    else if(index >= 9) btn.style.background = "#ffc7ce";
-                    else btn.style.background = "white";
+                    if(index === 0) btn.style.background = "#e8f5e9";
+                    else if(index === 1) btn.style.background = "#f9fbe7";
+                    else if(index >= 2 && index <= 5) btn.style.background = "#fff3e0";
+                    else if(index >= 6 && index <= 8) btn.style.background = "#ffebee";
+                    else if(index >= 9) btn.style.background = "#efebe9";
                 });
                 
                 // 내가 선택한 버튼만 진한 파란색으로 돋보이게 변경
