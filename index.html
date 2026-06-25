@@ -125,7 +125,7 @@
         </div>
 
         <div id="stepRating" class="hidden">
-            <h3 style="display:block; text-align:center; border:none;">방금 문장을 읽을 때 느낀 멀미/어지러움 정도</h3>
+            <h3 style="display:block; text-align:center; border:none;">방금 문장을 읽을 때 느낀 멀미 정도</h3>
             <p id="ratingTimerText" style="color: #d93025; font-weight: bold; font-size: 1.2rem; text-align: center;">남은 시간: 5초</p>
     
             <div class="misc-label-grid">
@@ -309,7 +309,7 @@
                 document.getElementById('stepReading').classList.remove('hidden');
             
                 currentVerseIndex = 0;
-                document.getElementById('currentPhaseTitle').innerText = `[세션 ${currentSessionIndex + 1}] 진행 중 (식별 코드: ${subjectId})`;
+                document.getElementById('currentPhaseTitle').innerText = `진행 중 (식별 코드: ${subjectId})`;
                 playNextVerse();
             }
         }, 1000);
