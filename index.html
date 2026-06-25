@@ -33,6 +33,25 @@
         .alert-box { background-color: #fce8e6; border: 2px solid #d93025; border-radius: 10px; padding: 25px; margin: 20px 0; }
         .sensor-box { background: #e8f0fe; border: 2px solid #1a73e8; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
         .sensor-status { font-weight: bold; color: #d93025; font-size: 1.1rem; margin-top: 10px; }
+        /* 💡 점수 버튼 바로 위에 딱 맞게 붙는 라벨 그리드 스타일 */
+        .misc-label-grid {
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            gap: 5px;
+            margin-top: 15px;
+            margin-bottom: 5px; /* 버튼과 아주 가깝게 붙임 */
+        }
+        .misc-label {
+            padding: 6px 2px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            line-height: 1.3;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -113,29 +132,29 @@
             <div id="verseDisplay" class="verse-box">준비 중...</div>
         </div>
 
-        <div id="stepRating" class="hidden" style="text-align: center;">
-            <h3 style="display:block; text-align:center; border:none;">현재 느끼는 멀미 점수를 선택해 주세요</h3>
-            <p id="ratingTimerText" style="color: #d93025; font-weight: bold; font-size: 1.2rem;">남은 시간: 5초</p>
+        <div id="stepRating" class="hidden">
+            <h3 style="display:block; text-align:center; border:none;">방금 문장을 읽을 때 느낀 멀미/어지러움 정도</h3>
+            <p id="ratingTimerText" style="color: #d93025; font-weight: bold; font-size: 1.2rem; text-align: center;">남은 시간: 5초</p>
     
-            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 650px; margin: 0 auto 15px auto; text-align: center;">
-                <div style="color: #2e7d32; padding: 8px 12px; background: #e8f5e9; border-radius: 8px; border: 1px solid #c8e6c9;">
-                    <strong>🟢 0: 정상</strong><br><span style="font-size: 0.85rem;">(아무 증상 없음)</span>
+            <div class="misc-label-grid">
+                <div class="misc-label" style="grid-column: span 1; background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;">
+                    <strong>0</strong><span style="font-size: 0.7rem;">정상</span>
                 </div>
-                <div style="color: #827717; padding: 8px 12px; background: #f9fbe7; border-radius: 8px; border: 1px solid #f0f4c3;">
-                    <strong>🟡 1: 미세한 불편감</strong><br><span style="font-size: 0.85rem;">(불쾌감)</span>
+                <div class="misc-label" style="grid-column: span 1; background: #f9fbe7; color: #827717; border: 1px solid #f0f4c3;">
+                    <strong>1</strong><span style="font-size: 0.7rem;">불편</span>
                 </div>
-                <div style="color: #e65100; padding: 8px 12px; background: #fff3e0; border-radius: 8px; border: 1px solid #ffe0b2;">
-                    <strong>🟠 2~5: 전조 증상</strong><br><span style="font-size: 0.85rem;">(두통·어지럼증·하품)</span>
+                <div class="misc-label" style="grid-column: span 4; background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2;">
+                    <strong>2~5: 전조 증상</strong><span style="font-size: 0.75rem;">(두통·하품·어지럼)</span>
                 </div>
-                <div style="color: #c62828; padding: 8px 12px; background: #ffebee; border-radius: 8px; border: 1px solid #ffcdd2;">
-                    <strong>🔴 6~8: 메스꺼움</strong><br><span style="font-size: 0.85rem;">(속이 울렁거림)</span>
+                <div class="misc-label" style="grid-column: span 3; background: #ffebee; color: #c62828; border: 1px solid #ffcdd2;">
+                    <strong>6~8: 메스꺼움</strong><span style="font-size: 0.75rem;">(속 울렁거림)</span>
                 </div>
-                <div style="color: #4e342e; padding: 8px 12px; background: #efebe9; border-radius: 8px; border: 1px solid #d7ccc8;">
-                    <strong>🟤 9~10: 구토 직전</strong><br><span style="font-size: 0.85rem;">(참기 힘듦)</span>
+                <div class="misc-label" style="grid-column: span 2; background: #efebe9; color: #4e342e; border: 1px solid #d7ccc8;">
+                    <strong>9~10: 구토</strong><span style="font-size: 0.75rem;">(참기 힘듦)</span>
                 </div>
             </div>
 
-            <div class="rating-grid" id="ratingScale" style="max-width: 600px; margin: 0 auto;"></div>
+            <div class="rating-grid" id="ratingScale"></div>
         </div>
 
         <div id="stepPostSurvey" class="hidden">
