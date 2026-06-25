@@ -113,11 +113,18 @@
             <div id="verseDisplay" class="verse-box">준비 중...</div>
         </div>
 
-        <div id="stepRating" class="hidden">
-            <h3 style="display:block; text-align:center; border:none;">방금 문장을 읽을 때 느낀 멀미/어지러움 정도</h3>
-            <p class="text-center">(0: 전혀 없음 ~ 10: 매우 심함)</p>
-            <p id="ratingTimerText" style="color: #d93025; font-weight: bold; font-size: 1.2rem; text-align: center;">남은 시간: 5초</p>
-            <div class="rating-grid" id="ratingScale"></div>
+        <div id="stepRating" class="hidden" style="text-align: center;">
+            <h3 style="display:block; text-align:center; border:none;">현재 느끼는 멀미/어지러움 점수를 선택해 주세요</h3>
+            <p id="ratingTimerText" style="color: #d93025; font-weight: bold; font-size: 1.2rem;">남은 시간: 5초</p>
+    
+            <div style="display: flex; justify-content: space-between; max-width: 600px; margin: 0 auto 10px auto; font-size: 0.9rem; font-weight: bold;">
+                <span style="color: #385723;">🟢 0: 정상</span>
+                <span style="color: #b25900;">🟡 2~5: 전조증상<br>(두통,식은땀 / 속은 괜찮음)</span>
+                <span style="color: #c65911;">🟠 6~8: 메스꺼움<br>(속이 울렁거림)</span>
+                <span style="color: #9c0006;">🔴 10: 구토직전</span>
+            </div>
+
+            <div class="rating-grid" id="ratingScale" style="max-width: 600px; margin: 0 auto;"></div>
         </div>
 
         <div id="stepPostSurvey" class="hidden">
@@ -349,7 +356,7 @@
                 document.getElementById('stepReading').classList.remove('hidden');
             
                 currentVerseIndex = 0;
-                document.getElementById('currentPhaseTitle').innerText = `[${experimentFlow[currentSessionIndex] === 'control' ? '대조군' : '실험군'} 세션] 진행 중 (식별 코드: ${subjectId})`;
+                document.getElementById('currentPhaseTitle').innerText = `진행 중 (식별 코드: ${subjectId})`;
                 playNextVerse();
             }
         }, 1000);
@@ -439,7 +446,7 @@
     }
 
     function showRatingScreen() {
-        currentPhase = `Session${currentSessionIndex+1}_Rating${currentVerseIndex+1}`; 
+        currentPhase = `Session${currentSessionIndex+1}_Rating${currentVerseIndex+1}`; // 별점 평가 시간 라벨링
 
         document.getElementById('stepReading').classList.add('hidden');
         document.getElementById('stepRating').classList.remove('hidden');
@@ -448,15 +455,36 @@
         const scale = document.getElementById('ratingScale');
         scale.innerHTML = '';
         
+        // 💡 [수정됨] 0~10점 버튼 생성 및 색상 부여
         for(let i=0; i<=10; i++) {
             let b = document.createElement('button'); 
             b.className = 'rating-btn'; 
             b.innerText = i; 
             
+            // 1. 점수 구역별로 직관적인 배경색 미리 깔아주기
+            if(i === 0) b.style.background = "#e2f0d9"; // 연녹 (정상)
+            else if(i >= 2 && i <= 5) b.style.background = "#fff2cc"; // 연황 (전조증상)
+            else if(i >= 6 && i <= 8) b.style.background = "#fce4d6"; // 연주황 (메스꺼움)
+            else if(i >= 9) b.style.background = "#ffc7ce"; // 연적 (구토 직전)
+            else b.style.background = "white"; // 1점은 애매한 단계라 흰색 유지
+            
+            // 2. 버튼 클릭 시 이벤트
             b.onclick = () => {
                 selectedScore = i;
-                Array.from(scale.children).forEach(btn => { btn.style.background = 'white'; btn.style.color = '#333'; });
-                b.style.background = '#1a73e8'; b.style.color = 'white';
+                
+                // 다른 버튼들을 원래의 구역 색상으로 원상복구
+                Array.from(scale.children).forEach((btn, index) => { 
+                    btn.style.color = '#333';
+                    if(index === 0) btn.style.background = "#e2f0d9";
+                    else if(index >= 2 && index <= 5) btn.style.background = "#fff2cc";
+                    else if(index >= 6 && index <= 8) btn.style.background = "#fce4d6";
+                    else if(index >= 9) btn.style.background = "#ffc7ce";
+                    else btn.style.background = "white";
+                });
+                
+                // 내가 선택한 버튼만 진한 파란색으로 돋보이게 변경
+                b.style.background = '#1a73e8'; 
+                b.style.color = 'white';
             }; 
             scale.appendChild(b);
         }
