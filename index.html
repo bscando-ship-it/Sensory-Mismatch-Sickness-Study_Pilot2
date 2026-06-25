@@ -65,8 +65,8 @@
 
         <div id="stepPreSurvey" class="hidden">
             <h2>📋 [실험 전] 사전 설문지 (Pre-Experiment Questionnaire)</h2>
-            <p class="survey-note"><strong>목적:</strong> 참가자의 당일 신체 컨디션 점검 및 기저 멀미 민감도(Modified MSSQ) 파악</p>
-            
+            <p class="survey-note"><strong>목적:</strong> 참가자의 당일 신체 컨디션 점검, 기저 신체 증상(SSQ) 및 멀미 민감도(Modified MSSQ) 파악</p>
+    
             <h3>1. 기본 컨디션 점검</h3>
             <div class="survey-q"><p>1-1. 어젯밤 수면 시간은 대략 몇 시간입니까?</p><input type="number" id="pre_sleep" step="0.5" placeholder="예: 7.5"></div>
             <div class="survey-q"><p>1-2. 현재 체감하는 피로도를 평가해 주세요.<br><span style="font-size:0.9rem; color:#666;">(0: 전혀 피로하지 않음 ~ 10: 매우 피로함)</span></p><input type="number" id="pre_fatigue" min="0" max="10" placeholder="0~10 숫자"></div>
@@ -76,9 +76,13 @@
             <div class="survey-q"><p>1-4. 실험 시작 전 2시간 이내에 카페인 음료(커피, 에너지 드링크 등)를 섭취하셨습니까?</p>
                 <div class="radio-group"><label><input type="radio" name="pre_caf" value="예"> 예</label><label><input type="radio" name="pre_caf" value="아니오" checked> 아니오</label></div>
             </div>
-            
-            <h3>2. 멀미 민감도 평가 (Modified MSSQ-Short)</h3>
-            <p class="survey-note">12세 이후부터 현재까지, 다음 상황에서 멀미(메스꺼움, 어지럼증)를 얼마나 자주 느끼는지 체크해 주세요.<br><strong>(척도: 0=전혀 없음 / 1=드물게 있음 / 2=가끔 있음 / 3=자주 있음 / 4=항상 있음)</strong></p>
+    
+            <h3>2. 현재 신체 및 자율신경계 반응 평가 (Pre-SSQ)</h3>
+            <p class="survey-note"><strong>실험 시작 직전인 현재</strong> 느끼는 신체 증상에 체크해 주세요.<br><strong>(척도: 0=전혀 없음 / 1=약간 있음 / 2=보통 / 3=심함)</strong></p>
+            <div id="pre_ssq_container"></div>
+    
+            <h3>3. 멀미 민감도 평가 (Modified MSSQ-Short)</h3>
+            <p class="survey-note">12세 이후부터 현재까지, 다음 상황에서 멀미(메스꺼움, 어지럼증)를 얼마나 자주 느끼는지 체크해 주세요.<br><strong>(척도: 0=전혀 없음 / 1=드물게 있음 / 2=가끔 있음 / 3=자주 있음 / 4=항상 있음)</strong></p>'
             <div id="mssq_container"></div>
             <button onclick="submitPreSurvey()" class="btn">설문 제출 및 안내사항 보기</button>
         </div>
@@ -264,6 +268,7 @@
     function createInputs(id, prefix, list) { document.getElementById(id).innerHTML = list.map((q, i) => `<div class="survey-q"><p>${q}</p><input type="number" id="${prefix}_${i}" min="1" max="10" placeholder="1~10 숫자 입력"></div>`).join(''); }
     
     createRadios("mssq_container", "mssq", mssqList, 4);
+    createRadios("pre_ssq_container", "pre_ssq", ssqList, 3);
     createRadios("ssq_container", "ssq", ssqList, 3);
     createInputs("tlx_container", "tlx", tlxList);
     createInputs("sensory_container", "sens", sensList);
@@ -281,6 +286,12 @@
     function submitPreSurvey() {
         if(!document.getElementById('pre_sleep').value || !document.getElementById('pre_fatigue').value) return alert("필수 항목을 입력해주세요.");
         preSurveyData = { sleep: document.getElementById('pre_sleep').value, fatigue: document.getElementById('pre_fatigue').value, drug: document.querySelector('input[name="pre_drug"]:checked').value, caffeine: document.querySelector('input[name="pre_caf"]:checked').value };
+        for(let i=0; i<ssqList.length; i++) {
+            let el = document.querySelector(`input[name="pre_ssq_${i}"]:checked`);
+            if(!el) return alert("사전 SSQ 항목을 모두 체크해주세요.");
+            preSurveyData[`pre_ssq_${i+1}`] = el.value;
+        }
+        
         for(let i=0; i<mssqList.length; i++) {
             let el = document.querySelector(`input[name="mssq_${i}"]:checked`);
             if(!el) return alert("MSSQ 항목을 모두 체크해주세요.");
@@ -549,7 +560,14 @@
         logs.forEach(r => logCsv += `${r.subjectId},"${r.name}",${r.session},${r.mode},"${r.verse}",${r.appliedLat},${r.baseLatency},${r.score},${r.timestamp}\n`); 
         zip.file(`1_DAF_Logs_ID${subjectId}_${userName}.csv`, "\ufeff" + logCsv);
         
-        let preCsv = "식별코드,수면시간,피로도,약물,카페인,MSSQ1,MSSQ2,MSSQ3,MSSQ4,MSSQ5,MSSQ6\n" + `${subjectId},${preSurveyData.sleep},${preSurveyData.fatigue},${preSurveyData.drug},${preSurveyData.caffeine},${preSurveyData.mssq_1},${preSurveyData.mssq_2},${preSurveyData.mssq_3},${preSurveyData.mssq_4},${preSurveyData.mssq_5},${preSurveyData.mssq_6}\n`; 
+        // 헤더 열 수정
+        let preCsv = "식별코드,수면시간,피로도,약물,카페인,Pre_SSQ1,Pre_SSQ2,Pre_SSQ3,Pre_SSQ4,Pre_SSQ5,Pre_SSQ6,Pre_SSQ7,Pre_SSQ8,Pre_SSQ9,MSSQ1,MSSQ2,MSSQ3,MSSQ4,MSSQ5,MSSQ6\n";
+
+        // 데이터 행 작성
+        preCsv += `${subjectId},${preSurveyData.sleep},${preSurveyData.fatigue},${preSurveyData.drug},${preSurveyData.caffeine},` +
+            `${preSurveyData.pre_ssq_1},${preSurveyData.pre_ssq_2},${preSurveyData.pre_ssq_3},${preSurveyData.pre_ssq_4},${preSurveyData.pre_ssq_5},${preSurveyData.pre_ssq_6},${preSurveyData.pre_ssq_7},${preSurveyData.pre_ssq_8},${preSurveyData.pre_ssq_9},` +
+            `${preSurveyData.mssq_1},${preSurveyData.mssq_2},${preSurveyData.mssq_3},${preSurveyData.mssq_4},${preSurveyData.mssq_5},${preSurveyData.mssq_6}\n`;
+        
         zip.file(`2_PreSurvey_ID${subjectId}_${userName}.csv`, "\ufeff" + preCsv);
         
         let postCsv = "식별코드,세션,모드,SSQ1,SSQ2,SSQ3,SSQ4,SSQ5,SSQ6,SSQ7,SSQ8,SSQ9,TLX1,TLX2,TLX3,TLX4,TLX5,SENS1,SENS2\n"; 
