@@ -31,8 +31,6 @@
         #timeProgressBar { width: 100%; height: 100%; background: #d93025; transition: width 0.1s linear; }
         .timer-text { font-size: 4rem; font-weight: bold; color: #d93025; text-align: center; margin: 30px 0; }
         .alert-box { background-color: #fce8e6; border: 2px solid #d93025; border-radius: 10px; padding: 25px; margin: 20px 0; }
-        .sensor-box { background: #e8f0fe; border: 2px solid #1a73e8; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
-        .sensor-status { font-weight: bold; color: #d93025; font-size: 1.1rem; margin-top: 10px; }
         /* 💡 점수 버튼 바로 위에 딱 맞게 붙는 라벨 그리드 스타일 */
         .misc-label-grid {
             display: grid;
@@ -57,13 +55,6 @@
 <body>
     <div class="card">
         <h1>감각 불일치와 멀미 연관성 연구<br><span style="font-size: 1.2rem; color: #666;">(Sensory Mismatch & Sickness Study)</span></h1>
-        
-        <div id="step1">
-            <div class="sensor-box">
-                <p style="margin:0 0 10px 0; font-weight:bold;">🔌 아두이노 센서(GSR/HRV) 연결</p>
-                <button onclick="connectArduino()" class="btn btn-secondary" style="width:auto; padding:10px 20px; margin-top:0;">포트 연결하기</button>
-                <div id="arduinoStatus" class="sensor-status">현재 연결 안 됨 (필요시 먼저 연결하세요)</div>
-            </div>
 
             <h3>참여자 정보 입력</h3>
             <div class="input-group">
@@ -208,64 +199,6 @@
     let zip = new JSZip(), subjectId = 0, experimentFlow = [], currentSessionIndex = 0, currentVerseIndex = 0;
     let readingTimer, progressInterval, ratingTimeout, ratingInterval;
     let selectedScore = -1; 
-
-    let serialPort, serialReader;
-    let biosignals = []; 
-    let currentPhase = "Setup"; 
-
-    async function connectArduino() {
-        if (!('serial' in navigator)) {
-            alert("이 브라우저는 Web Serial API를 지원하지 않습니다. Chrome 또는 Edge를 사용해주세요.");
-            return;
-        }
-        try {
-            serialPort = await navigator.serial.requestPort();
-            await serialPort.open({ baudRate: 115200 }); 
-            
-            const statusDiv = document.getElementById('arduinoStatus');
-            statusDiv.innerText = "✅ 아두이노 정상 연결됨! (데이터 수신 중)";
-            statusDiv.style.color = "#1a73e8";
-            
-            readSerialData(); 
-        } catch (error) {
-            console.error("포트 열기 에러:", error);
-            alert("연결 취소 또는 오류가 발생했습니다.");
-        }
-    }
-
-    async function readSerialData() {
-        const textDecoder = new TextDecoderStream();
-        const readableStreamClosed = serialPort.readable.pipeTo(textDecoder.writable);
-        serialReader = textDecoder.readable.getReader();
-        let buffer = "";
-
-        try {
-            while (true) {
-                const { value, done } = await serialReader.read();
-                if (done) break;
-                
-                buffer += value;
-                let lines = buffer.split('\n');
-                buffer = lines.pop(); 
-
-                let webTimestamp = Date.now(); 
-                
-                for (let line of lines) {
-                    line = line.trim();
-                    if (line && !line.includes("Time_ms")) { 
-                        let parts = line.split(',');
-                        if (parts.length === 3) { 
-                            biosignals.push(`${parts[0]},${parts[1]},${parts[2]},${webTimestamp},${currentPhase}`);
-                        }
-                    }
-                }
-            }
-        } catch (error) {
-            console.error("데이터 읽기 에러:", error);
-            document.getElementById('arduinoStatus').innerText = "⚠️ 아두이노 연결 끊김!";
-            document.getElementById('arduinoStatus').style.color = "#d93025";
-        }
-    }
 
     const mssqList = [
         "평소 자동차(승용차)를 타실 때 멀미를 느끼시는 편인가요?", 
@@ -636,9 +569,6 @@
         postSurveyData.forEach(r => postCsv += `${subjectId},${r.session},${r.mode},${r.ssq_1},${r.ssq_2},${r.ssq_3},${r.ssq_4},${r.ssq_5},${r.ssq_6},${r.ssq_7},${r.ssq_8},${r.ssq_9},${r.tlx_1},${r.tlx_2},${r.tlx_3},${r.tlx_4},${r.tlx_5},${r.sens_1},${r.sens_2}\n`); 
         zip.file(`3_PostSurvey_ID${subjectId}_${userName}.csv`, "\ufeff" + postCsv);
         
-        let bioCsv = "Arduino_Time(ms),GSR_Raw,HRV_IR,Web_Timestamp(ms),Experiment_Phase\n";
-        biosignals.forEach(r => bioCsv += `${r}\n`);
-        zip.file(`4_Biosignals_ID${subjectId}_${userName}.csv`, "\ufeff" + bioCsv);
 
         zip.generateAsync({ type: "blob" }).then(content => { 
             const link = document.createElement("a"); 
