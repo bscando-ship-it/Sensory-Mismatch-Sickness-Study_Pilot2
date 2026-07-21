@@ -347,7 +347,7 @@
         bar.style.width = "100%";
 
         if(audioContext) await audioContext.close();
-        audioContext = new AudioContext({ latencyHint: 'interactive'});
+        audioContext = new AudioContext({ latencyHint: 'interactive'}, sampleRate: 44100);
         
         try { 
             mediaStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }); 
